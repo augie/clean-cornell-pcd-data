@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -89,6 +90,20 @@ public class ConvertPCDBinaryToASCII {
             revisedCount[fieldCount] = splitCount[i];
             fieldCount++;
         }
+//        String[] revisedFields = new String[splitFields.length - 6];
+//        String[] revisedSize = new String[splitFields.length - 6];
+//        String[] revisedType = new String[splitFields.length - 6];
+//        String[] revisedCount = new String[splitFields.length - 6];
+//        for (int i = 0, fieldCount = 0; i < splitFields.length; i++) {
+//            if (splitFields[i].equals("_") || fieldCount >= 5) {
+//                continue;
+//            }
+//            revisedFields[fieldCount] = splitFields[i];
+//            revisedSize[fieldCount] = splitSize[i];
+//            revisedType[fieldCount] = splitType[i];
+//            revisedCount[fieldCount] = splitCount[i];
+//            fieldCount++;
+//        }
 
         // Write out the head of the converted file
         out.println(version);
@@ -141,8 +156,11 @@ public class ConvertPCDBinaryToASCII {
             float z = readUnsignedFloat(getBytes(dataPoint, 8, 11));
             byte[] wats = getBytes(dataPoint, 12, 15);
             byte[] rgbBytes = getBytes(dataPoint, 16, 19);
-            float rgbFloat = readUnsignedFloat(rgbBytes);
-            int[] rgb = readRGB(readUnsignedInt(rgbBytes));
+//            float rgbFloat = readUnsignedFloat(rgbBytes);
+//            float rgbFloat = readFloat(rgbBytes);
+            int rgbInt = readUnsignedInt(rgbBytes);
+//            int rgbInt = readInt(rgbBytes);
+//            int[] rgb = readRGB(rgbInt);
             byte[] wats2 = getBytes(dataPoint, 20, 31);
             int cameraIndex = readUnsignedInt(getBytes(dataPoint, 32, 35));
             float distance = readUnsignedFloat(getBytes(dataPoint, 36, 39));
@@ -150,7 +168,10 @@ public class ConvertPCDBinaryToASCII {
             int label = readUnsignedInt(getBytes(dataPoint, 44, 47));
 
             // Write out the data point
-            out.println(x + " " + y + " " + z + " " + rgbFloat + " " + cameraIndex + " " + distance + " " + segment + " " + label);
+//            out.println(x + " " + y + " " + z + " " + rgbFloat + " " + cameraIndex + " " + distance + " " + segment + " " + label);
+            out.println(x + " " + y + " " + z + " " + rgbInt + " " + cameraIndex + " " + distance + " " + segment + " " + label);
+//            out.println(x + " " + y + " " + z + " " + rgbFloat);
+//            out.println(x + " " + y + " " + z + " " + rgbInt);
         }
     }
 
@@ -171,8 +192,16 @@ public class ConvertPCDBinaryToASCII {
         return ret;
     }
 
+    public static float readFloat(byte[] bytes) throws Exception {
+        return ByteBuffer.wrap(bytes).getFloat();
+    }
+
     public static float readUnsignedFloat(byte[] bytes) throws Exception {
         return Float.intBitsToFloat(readUnsignedInt(bytes));
+    }
+    
+    public static int readInt(byte[] bytes) throws Exception {
+        return ByteBuffer.wrap(bytes).getInt();
     }
 
     public static int readUnsignedInt(byte[] bytes) throws Exception {
